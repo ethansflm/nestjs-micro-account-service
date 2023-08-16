@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  nestjs-micro-account-service:
+    image: nestjs-micro-account-service:latest
+    # env_file:
+    #   - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik-net'
+      - 'traefik.http.routers.nestjs-micro-account-service.entrypoints=web'
+      - 'traefik.http.routers.nestjs-micro-account-service.rule=Host(`user-dev.sugarapp.site`)'
+      - 'traefik.http.routers.nestjs-micro-account-service-https.entrypoints=websecure'
+      - 'traefik.http.routers.nestjs-micro-account-service-https.rule=Host(`user-dev.sugarapp.site`)'
+      - 'traefik.http.routers.nestjs-micro-account-service-https.service=nestjs-micro-account-service-service'
+      - 'traefik.http.routers.nestjs-micro-account-service.service=nestjs-micro-account-service-service'
+      - 'traefik.http.services.nestjs-micro-account-service-service.loadbalancer.server.port=9010'
+      - 'traefik.http.routers.nestjs-micro-account-service-https.tls=true'
+      - 'traefik.http.routers.nestjs-micro-account-service-https.tls.certresolver=myresolver'
+      - 'traefik.http.routers.nestjs-micro-account-service.middlewares=redirect-https'
+      - 'traefik.http.middlewares.redirect-https.redirectscheme.scheme=https'
+      - 'traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=2000000000'
+    container_name: nestjs-micro-account-service
+    ports:
+      - '9010:9010'
+    networks:
+      - traefik-net
+networks:
+  traefik-net:
+    external: true
